@@ -1,6 +1,6 @@
 %%% test of the nf2ff transformation from a sphere 
 clear all; clc; close all;
-addpath('..\..\matlabLib');
+addpath('../../matlabLib');
 
 arrayPos = buildArray(1, 5, .5, 1, .5);
 [xMin, xMax, yMin, yMax, zMin, zMax, xPts, yPts, zPts] = ...
