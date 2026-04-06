@@ -138,7 +138,7 @@ phiFF = deg2rad([0 90]);
 farField = sf_nf2ffSolver(1, thetaFF, phiFF, spherePos, n, dS, psi, delPsi);
 ```
 
-### Vector Field N2F with Low-Rank Approximation
+### Scalar Field N2F with Low-Rank Approximation
 ```matlab
 % Create bounding box
 [xMin, xMax, yMin, yMax, zMin, zMax, xPts, yPts, zPts] = ...

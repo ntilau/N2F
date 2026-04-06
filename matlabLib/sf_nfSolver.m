@@ -1,18 +1,24 @@
-% Computes the scalar near field and its derivative over the surface
-% chosen for the near field to far field computation (scalar Huygens' 
-% principle)
+% Computes the scalar near field and its normal derivative over a
+% surface used in a near-field to far-field transformation.
+% The implementation uses point-source superposition and scalar Huygens'
+% formulation.
 %
-% [psi, delPsi]=  sf_nfSolver(lambda, excitPhasor, Rmag, NdotRV)
+% [psi, delPsi] = sf_nfSolver(lambda, excitPhasor, Rmag, NdotRV)
 %
-% IN: lambda = wavelength [m]
-%     excitPhasor = phasors of the excitations of the point sources
-%     Rmag = for each pt source, distances to the sampling points on the
-%            bounding surface
-%     NdotRV = dot product for derivatives computation
+% IN:
+%   lambda      = wavelength [m]
+%   excitPhasor = 1xNs vector of complex source excitation phasors
+%   Rmag        = Ns x Npts matrix of distances from each source to each
+%                 surface sampling point
+%   NdotRV      = Ns x Npts matrix of normal-direction dot products used
+%                 for the normal derivative computation
 %
-% OUT: psi = near field (normalized for pattern computation by the chosen 
-%            sources)
-%      delPsi = near field normal derivative (also normalized)
+% OUT:
+%   psi   = 1xNpts near-field values on the surface
+%   delPsi= 1xNpts normal derivative of the near field on the surface
+%
+% Note: psi and delPsi are computed using the free-space Green's function
+%       for scalar point sources.
 %
 % Laurent Ntibarikure
 function [psi, delPsi]=  sf_nfSolver(lambda, excitPhasor, Rmag, NdotRV)

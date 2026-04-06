@@ -1,19 +1,9 @@
-%%% Demonstration: Near-field to far-field (N2F) transformation on spherical surface
-% OBJECTIVE: Show basic N2F workflow, validate accuracy vs direct solver
-%
-% WORKFLOW:
-%   1. Create antenna array and spherical bounding surface
-%   2. Compute near-field via source superposition (scalar field)
-%   3. Transform to far-field using N2F operator (Huygens' principle)
-%   4. Validate vs direct source summation (ground truth)
-%   5. Plot patterns and report error metrics
-%
-% EXPECTED: Near-perfect match between methods (>>-100dB error)
-%
+%%% test of the near field to far field transformation from a bounding 
+%%% sphere 
 clear; clc; close all;
 addpath('../../matlabLib');
 
-%%--- Configuration: antenna array parameters
+%%--- params for planar array of point sources on XY plane
 lambda = 1;
 nbrElems_x = 5; % number of point sources on x direction
 WLspacing_x = .5; % spacing between pointsources in wavelengths (wl.) x dir

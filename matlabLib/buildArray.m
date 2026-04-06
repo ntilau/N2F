@@ -1,23 +1,24 @@
-% Returns the position of the radiating elements of a planar array built on
-% the XY plane symmetrically centered in (x=0,y=0,z=0)
+% Returns the positions of a planar radiating array defined on the XY
+% plane, centered at the origin.
 %
 % arrayPos = buildArray(lambda, nbrElems_x, WLspacing_x, ...
 %   nbrElems_y, WLspacing_y);
 %
-% IN: lambda = the wavelength in m
-%     nbrElems_x = nbr of elements along the x direction
-%     WLspacing_x = spacing in wavelengths between the elements along 
-%                   the x direction
-%     nbrElems_y = nbr of elements along the y direction
-%     WLspacing_y = spacing in wavelengths between the elements along 
-%                   the y direction
-% OUT: arrayPos = array of the positions, every column correspond to x, y,
-%                 z Cartesian coordinates [x;y;z]
+% IN:
+%   lambda      = wavelength [m]
+%   nbrElems_x  = number of elements along x
+%   WLspacing_x = element spacing in wavelengths along x
+%   nbrElems_y  = number of elements along y
+%   WLspacing_y = element spacing in wavelengths along y
+%
+% OUT:
+%   arrayPos = 3xN matrix of element coordinates [x; y; z], with z=0
+%              and N = nbrElems_x * nbrElems_y.
 %
 % Example:
-%   arrayPos = buildArray(.01, 4, .5, 2, .7) for the positions of a planar
-%   array of 4 by 2 radiating elements equally spaced of 0.5*lambda along 
-%   the x direction and 0.7*lambda along the y direction. lambda is of 1 cm
+%   arrayPos = buildArray(.01, 4, .5, 2, .7)
+%   creates a 4x2 planar array with 0.5 lambda spacing along x and
+%   0.7 lambda spacing along y. The array is centered at the origin.
 %
 % Laurent Ntibarikure
 function arrayPos = buildArray(lambda, nbrElems_x, WLspacing_x, ...

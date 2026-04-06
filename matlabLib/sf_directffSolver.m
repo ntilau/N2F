@@ -1,25 +1,21 @@
-% Computes far-field directly from array sources (reference method)
-%
-% Direct summation for validation. Useful as ground truth for comparing
-% with N2F transformation methods - both should give identical results.
-%
-% ALGORITHM: Far-field point source superposition
-%   Theta-component: E_theta = sum_k excit_k * exp(ik*R_k) / (4*pi*R_k)
-%   where R_k = source distance in far-field (plane wave approx)
+% Computes the direct far-field pattern of a set of point sources.
+% This reference solution is used to validate the near-field-based
+% N2F transformation.
 %
 % fPsiRef = sf_directffSolver(lambda, theta, phi, excitPhasor, arrayPos)
 %
-% IN: lambda = wavelength [m]
-%     theta = polar far-field observation angles [rad] (nTheta x nPhi)
-%     phi = azimuthal far-field observation angles [rad] (nTheta x nPhi)
-%     excitPhasor = complex excitation amplitudes for each source (1 x nSources)
-%     arrayPos = Cartesian source positions (3 x nSources)
+% IN:
+%   lambda       = wavelength [m]
+%   theta, phi   = 1xNtheta and 1xNphi far-field angles [rad]
+%   excitPhasor  = 1xNa complex excitation phasors for each source
+%   arrayPos     = 3xNa Cartesian coordinates of the point sources [m]
 %
-% OUT: fPsiRef = far-field pattern (nPhi x nTheta)
-%                Direct from sources - highest accuracy reference
+% OUT:
+%   fPsiRef = Nphi x Ntheta far-field pattern from the point source array
 %
-% NOTE: O(nSources * nTheta * nPhi) complexity; use for validation/small problems
-%       For large problems, use N2F operators (computed once, reused many times)
+% The far-field pattern is computed by direct summation of the source
+% contributions using the plane-wave phase factor for each observation
+% direction.
 %
 % Laurent Ntibarikure
 function fPsiRef = sf_directffSolver(lambda, theta, phi, ...

@@ -1,12 +1,4 @@
-%%% Low-rank approximation of the N2F operator for a bounding box 
-% OBJECTIVE: Validate operator-based N2F approach and test low-rank compression
-%
-% KEY FEATURES:
-%   1. Constructs explicit N2F operator matrices [Lpsi, LdelPsi] offline
-%   2. Applies operator via matrix multiplication: farField = Operator * nearField
-%   3. Enables rapid pattern computation (operator reusable for different excitations)
-%   4. Useful for comparing different truncation strategies
-%
+%%% low-rank approximation of the N2F operator for a bounding sphere 
 clear; clc; close all;
 addpath('../../matlabLib');
 
