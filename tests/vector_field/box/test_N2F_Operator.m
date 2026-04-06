@@ -1,7 +1,7 @@
 %%% check for Vector N2F implementation considering operators
 
 clear; clc; close all;
-addpath('../../matlabLib');
+addpath('../../../mn2f/');
 tStart = tic;
 
 % ----- load electrical parameters
@@ -12,12 +12,12 @@ nbrElems_x = 3;
 WLspacing_x = .5;
 nbrElems_y = 5;
 WLspacing_y = .5;
-tJ=90; pJ=270; tM=90; pM=0; % [°] spherical components of Huygens' sources
+tJ=90; pJ=270; tM=90; pM=0; % [ï¿½] spherical components of Huygens' sources
 Jmag=1; Mmag=z0; % [A/m] [V/m]
 arrayPos = buildArray(lambda0, nbrElems_x, WLspacing_x, ...
   nbrElems_y, WLspacing_y);
-steering_t = 0; % [°]
-steering_p = 0; % [°]
+steering_t = 0; % [ï¿½]
+steering_p = 0; % [ï¿½]
 [J,M] = vf_excitations(k0, arrayPos, Jmag, tJ, pJ,...
   Mmag, tM, pM, steering_t, steering_p);
 

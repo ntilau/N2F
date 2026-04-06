@@ -1,6 +1,6 @@
 %%% Near field to far field transformation from a bounding box
 clear; close all; clc;
-addpath('../../matlabLib/');
+addpath('../../../mn2f/');
 arrayPos = buildArray(1, 9, .5, 1, .5);
 
 points = 5;

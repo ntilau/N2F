@@ -1,6 +1,6 @@
 %%% low-rank approximation of the near fields
 clear; clc; close all;
-addpath('../../matlabLib');
+addpath('../../../mn2f/');
 tStart = tic;
 
 dirToTest = 23.3251;

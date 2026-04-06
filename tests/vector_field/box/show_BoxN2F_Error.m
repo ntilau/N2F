@@ -1,7 +1,7 @@
 %%% Check of the error due to numerical integration of the near fields in the
 %%% vector Huygen's principle
 clear; clc; close all;
-addpath('../../matlabLib');
+addpath('../../../mn2f/');
 
 %%--- electrical parameters
 [z0,k0,lambda0] = getFreeSpaceElectricalParams(1e9 , 0);
@@ -25,8 +25,8 @@ for i=2.^(0:6)
 
   arrayPos = buildArray(lambda0, nbrElems_x, WLspacing_x, ...
     nbrElems_y, WLspacing_y);
-  steering_x = 0; % [°]
-  steering_y = 0; % [°]
+  steering_x = 0; % [ï¿½]
+  steering_y = 0; % [ï¿½]
   [J,M] = vf_excitations(k0, arrayPos, Jmag, tJ, pJ,...
     Mmag, tM, pM, steering_x, steering_y);
   [xMin, xMax, yMin, yMax, zMin, zMax, xPts, yPts, zPts] = ...

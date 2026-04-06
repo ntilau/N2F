@@ -1,6 +1,6 @@
 %%% low-rank approximation of the N2F operator for a bounding sphere 
 clear; clc; close all;
-addpath('../../matlabLib');
+addpath('../../../mn2f/');
 
 arrayPos = buildArray(1, 9, .5, 1, .5);
 [xMin, xMax, yMin, yMax, zMin, zMax, xPts, yPts, zPts] = ...

@@ -1,6 +1,6 @@
 %%% DFT-truncation
 clear; clc; close all;
-addpath('../../matlabLib');
+addpath('../../../mn2f/');
 
 nbrElems_x = 9; % nbr of point sources for a linear array
 N = 300; % nbr look angle samples - need oversampling to avoid aliasing !

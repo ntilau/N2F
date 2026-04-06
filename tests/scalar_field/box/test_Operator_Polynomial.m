@@ -1,7 +1,7 @@
 %%% low-rank approximation of the near field to far field operator for a
 %%% bounding sphere with compact polynomial functions
 clear; clc; close all;
-addpath('../../matlabLib');
+addpath('../../../mn2f/');
 
 nbrElems_x = 9; % nbr of point sources for a linear array
 Nbr = 11:4:31; % nbr of coefficients to retain in the DFT-truncation

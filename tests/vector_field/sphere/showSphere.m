@@ -1,5 +1,5 @@
 clear; close all; clc;
-addpath('../../matlabLib');
+addpath('../../../mn2f/');
 %% constants
 pi=3.14159265358979323846;
 eps0=8.85418781761e-12;
@@ -11,7 +11,7 @@ lambda0=c0/freq;
 k0=2*pi/lambda0;
 %% sphere points
 rho=1; % [m]
-dtheta=2; dphi=2; % [°] high oversampling to get a good field's accuracy
+dtheta=2; dphi=2; % [ï¿½] high oversampling to get a good field's accuracy
 theta=(dtheta/2:dtheta:180-dtheta/2)*pi/180;
 phi=(0:dphi:360-dphi)*pi/180;
 [theta,phi]=meshgrid(theta,phi);
@@ -178,7 +178,7 @@ else
       thetaFF(2,:)*180/pi, 10*log10(Gain(2,:)),'-.r');
   axis('tight');v=axis;axis([v(1) v(2) -60 v(4)]);
   xlabel('\theta_{FF}');ylabel('Gain [dB]');
-  legend('\phi_{FF}=0°','\phi_{FF}=90°','Location','SouthEast');
+  legend('\phi_{FF}=0ï¿½','\phi_{FF}=90ï¿½','Location','SouthEast');
   title(['Maximum Gain = ', num2str(10*log10(maxGain)),' dB']);
 end
 %% used to compare the results with FEKO simulation (HertzDipole.txt)

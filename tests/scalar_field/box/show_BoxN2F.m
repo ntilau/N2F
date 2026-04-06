@@ -1,6 +1,6 @@
 %%% Near field to far field transformation from a bounding box
 clear; close all; clc;
-addpath('../../matlabLib/');
+addpath('../../../mn2f/');
 
 %%--- params
 % c0 = 299792458;
@@ -28,8 +28,8 @@ arrayPos = buildArray(lambda, nbrElems_x, WLspacing_x, ...
 [Rmag, NdotRV] = getBoxVectors(arrayPos, boxPos, boxN);
 
 %%---
-steering_t = 0; % [°]
-steering_p = 0; % [°]
+steering_t = 0; % [ï¿½]
+steering_p = 0; % [ï¿½]
 excitPhasor = sf_excitations(lambda, arrayPos, steering_t, steering_p );
 [psi, delPsi] = sf_nfSolver(lambda, excitPhasor, Rmag, NdotRV);
 

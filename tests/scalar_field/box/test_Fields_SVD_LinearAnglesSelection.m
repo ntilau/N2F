@@ -1,7 +1,7 @@
 %%% low-rank approximation of the near fields : linear scan angle space 
 %%% selection 
 clear; clc; close all;
-addpath('../../matlabLib');
+addpath('../../../mn2f/');
 tStart = tic();
 
 dirToTest = 23.3251;

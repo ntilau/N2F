@@ -1,7 +1,7 @@
 %%% low-rank approximation - spanning space angles selection for low
 %%% average error
 clear; close all; clc;
-addpath('../../matlabLib/');
+addpath('../../../mn2f/');
 tStart = tic;
 
 arrayPos = buildArray(1, 21, .5, 5, .5);
