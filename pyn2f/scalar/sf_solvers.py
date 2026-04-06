@@ -142,10 +142,15 @@ def sf_direct_ff_solver(wavelength, theta, phi, excit_phasor, array_pos):
     
     f_psi_ref = np.zeros((len(phi), len(theta)))
     
+    # Reshape theta for proper broadcasting: (N_theta, 1) to broadcast with (N_a,)
+    theta_reshaped = theta[:, np.newaxis]
+    
     for i in range(len(phi)):
-        phase = k_wn * (array_pos[0, :] * np.sin(theta) * np.cos(phi[i]) +
-                        array_pos[1, :] * np.sin(theta) * np.sin(phi[i]) +
-                        array_pos[2, :] * np.cos(theta))
-        f_psi_ref[i, :] = excit_phasor / (4 * np.pi) * np.sum(np.exp(1j * phase), axis=0)
+        phase = k_wn * (array_pos[0, :] * np.sin(theta_reshaped) * np.cos(phi[i]) +
+                        array_pos[1, :] * np.sin(theta_reshaped) * np.sin(phi[i]) +
+                        array_pos[2, :] * np.cos(theta_reshaped))
+        # phase has shape (N_theta, N_a), excit_phasor has shape (N_a,)
+        # multiply element-wise and sum over sources
+        f_psi_ref[i, :] = np.sum(excit_phasor / (4 * np.pi) * np.exp(1j * phase), axis=1)
     
     return f_psi_ref

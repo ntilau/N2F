@@ -1,0 +1,484 @@
+Metadata-Version: 2.4
+Name: pyn2f
+Version: 1.0.0
+Summary: Near-field to far-field transformations with model order reduction
+Home-page: https://github.com/ntilau/N2F
+Author: Laurent Ntibarikure
+Author-email: 
+Project-URL: Bug Tracker, https://github.com/ntilau/N2F/issues
+Project-URL: Source Code, https://github.com/ntilau/N2F
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Science/Research
+Classifier: Topic :: Scientific/Engineering :: Physics
+Classifier: Topic :: Scientific/Engineering :: Visualization
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: numpy>=1.21.0
+Requires-Dist: scipy>=1.7.0
+Requires-Dist: matplotlib>=3.4.0
+Dynamic: author
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: license-file
+Dynamic: project-url
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
+
+# N2F: Near-Field to Far-Field Transformations
+
+Near-field to far-field (N2F) transformations code for model order reduction in finite element radiation computations. This project implements efficient algorithms for computing far-field patterns from near-field data using Huygens' principle and low-rank approximations.
+
+**Available in:** MATLAB (original) • **Python** (converted)
+
+## Example patch antenna array 3x5 scanning
+![Beamsteering](MovScan.gif)
+
+## Project Overview
+
+This library provides tools for:
+- **Near-field computation**: Computing electromagnetic fields and their derivatives on bounding surfaces
+- **Far-field transformations**: Converting near-field data to far-field radiation patterns
+- **Model order reduction**: Using SVD-based techniques to reduce computational complexity
+- **Geometric construction**: Building arrays, boxes, and spherical surfaces for analysis
+- **Visualization**: Plotting field patterns, array geometries, and error metrics
+
+---
+
+# MATLAB Version
+
+## Directory Structure - MATLAB
+
+### `mn2f/`
+Core library functions organized by functionality:
+
+#### Geometry Functions
+- `buildArray()` - Create antenna array positions
+- `buildBox()` - Construct rectangular bounding surfaces
+- `buildSphere()` - Create spherical sampling surfaces
+- `buildTriSphere()` - Build triangulated sphere meshes
+- `getBoxDim()` - Calculate bounding box dimensions
+- `getBoxVectors()` - Compute vectors for box-based N2F
+- `getSphVectors()` - Compute vectors for sphere-based N2F
+- `getSphRadius()` - Determine optimal sphere radius
+
+#### Coordinate/Transform Functions
+- `cartesian2spherical()` - Convert Cartesian to spherical coordinates
+- `spherical2cartesian()` - Convert spherical to Cartesian coordinates
+- `getRotationMatrix()` - Generate rotation transformation matrices
+- `crossOperator()` - Compute cross product operations
+- `vector2matrix()` - Vector-to-matrix conversions
+
+#### Scalar Field Solvers
+- `sf_nfSolver()` - Compute scalar near fields and derivatives
+- `sf_nf2ffSolver()` - Transform scalar near fields to far fields
+- `sf_directffSolver()` - Direct far-field computation for validation
+- `sf_nf2ffOperator()` - Construct N2F operator matrices
+- `sf_excitations()` - Define excitation sources
+- `sf_computeGain()` - Calculate radiation gain
+
+#### Vector Field Solvers
+- `vf_nfSolver()` - Compute vector near fields (E, H fields)
+- `vf_nf2ffSolver()` - Transform vector near fields to far fields
+- `vf_n2fOpFields()` - Vector N2F operator matrices
+- `vf_n2fOpFieldsFFT()` - FFT-based vector N2F operators
+- `vf_directffSolver()` - Direct vector far-field computation
+- `vf_computeGain()` - Vector field gain calculation
+
+#### Utility Functions
+- `deg2rad()`, `rad2deg()` - Angle conversions
+- `getSpanningAngles()` - Generate angular sampling patterns
+- `getSphSmplAngles()`, `getSphSmplAnglesForPlots()` - Spherical angle sampling
+- `getL1error()`, `getL2error()`, `getMaxError()` - Error metrics
+- `getColorMap()`, `getFigureProperties()` - Visualization utilities
+
+#### Plotting Functions
+- `plotSphGeom()` - Plot spherical geometry
+- `plotFFCutPlanes()` - Visualize far-field cut planes
+- `plotArrayGeom()` - Display array configuration
+- `plotSelectedAngles()` - Plot specific angular regions
+- `sf_plotSphNF()`, `vf_plotFF3d()` - Field visualization
+
+### `scalarField/`
+Test and example scripts for scalar field (single value field) problems:
+
+#### `sphere/`
+- `test_Fields_SVD.m` - Low-rank SVD approximation of near fields on sphere
+- `test_Fields_SVD_*.m` - Variants with different angle selection strategies:
+  - `LinearAnglesSelection` - Uniform angle sampling
+  - `LinearInverseAnglesSelection` - Non-uniform angle distributions
+  - `ExponentialAnglesSelection` - Exponential angle sampling
+  - `HemisphereScanning` - Hemisphere-only scanning
+  - `AveragedError` - Error averaging over multiple configurations
+- `test_Operator_SVD.m` - SVD decomposition of N2F operators
+- `test_Operator.m` - Low-rank operator approximation
+- `show_SphereN2F.m` - Example N2F transformation on sphere
+- `show_SphereN2F_Errors.m` - Demonstrate error metrics
+
+#### `box/`
+Similar tests adapted for rectangular bounding boxes:
+- `test_Fields_SVD.m` - SVD analysis on box surfaces
+- `test_Operator.m` - Operator reduction for boxed geometries
+- `show_BoxN2F.m` - N2F on box surfaces
+- `show_PlanesN2F.m` - N2F on individual planes
+
+### `vectorFields/`
+Corresponding tests for vector field (E and H field) problems with `sphere/` and `box/` subdirectories
+
+## Core Algorithms
+
+### Scalar Field N2F Transformation
+Implements Huygens' principle for scalar fields:
+```
+f(θ,φ) = ∫∫_S [(ikn·R̂)ψ - ∂ψ/∂n] exp(ikR)/4πR dS
+```
+where:
+- `ψ` = near field
+- `∂ψ/∂n` = normal derivative
+- `k` = wavenumber
+- `R` = distance from surface to far-field point
+
+### Vector Field N2F Transformation
+Uses Kottler's equations to relate tangential E/H fields on surface to far-field patterns:
+```
+E(θ,φ) = ik₀Z₀/4π ∫∫_S [J(1+ikR)⁻¹ + (J·R̂)R̂(3(ikR)⁻² + 3i(ikR)⁻³)]exp(-ik₀R) dS
+                    - k₀²/4π M×R̂[(ikR)⁻¹ + (kR)⁻²]exp(-ik₀R)
+```
+
+### Low-Rank Approximation
+SVD-based model order reduction applied to N2F operator matrices to reduce computational load.
+
+## Usage Examples - MATLAB
+
+### Basic Scalar Field N2F on Sphere
+```matlab
+addpath('mn2f');
+
+% Create antenna array
+arrayPos = buildArray(1, 9, 0.5, 5, 0.5);
+
+% Build spherical sampling surface
+radius = getSphRadius(1, arrayPos, 0.5);
+[spherePos, dS, thetaNF, phiNF, mSize] = buildSphere(radius, 0.1, 3, 3, 1);
+
+% Compute near field
+[Rmag, NdotRV, n] = getSphVectors(arrayPos, spherePos);
+excitPhasor = sf_excitations(1, arrayPos, 23.3, 0);
+[psi, delPsi] = sf_nfSolver(1, excitPhasor, Rmag, NdotRV);
+
+% Transform to far field
+thetaFF = deg2rad(-90:1:90);
+phiFF = deg2rad([0 90]);
+farField = sf_nf2ffSolver(1, thetaFF, phiFF, spherePos, n, dS, psi, delPsi);
+```
+
+### Scalar Field N2F with Low-Rank Approximation
+```matlab
+% Create bounding box
+[xMin, xMax, yMin, yMax, zMin, zMax, xPts, yPts, zPts] = ...
+  getBoxDim(1, arrayPos, 0.5, 0.1, 0.5);
+[boxPos, boxN, dS, mSize] = buildBox(...
+  [1 1 1 1 1 1], xMin, xMax, yMin, yMax, zMin, zMax, xPts, yPts, zPts, 1, 0, 0);
+
+% Compute fields and operator
+[Rmag, NdotRV] = getBoxVectors(arrayPos, boxPos, boxN);
+excitPhasor = sf_excitations(1, arrayPos, 0, 0);
+[psi, delPsi] = sf_nfSolver(1, excitPhasor, Rmag, NdotRV);
+
+% Build N2F operator matrices
+[Lpsi, LdelPsi] = sf_nf2ffOperator(1, thetaFF, phiFF, boxPos, boxN, dS);
+
+% Apply operator
+farField = zeros(length(phiFF), length(thetaFF));
+for i = 1:length(phiFF)
+  farField(i,:) = Lpsi(:,:,i) * psi.' + LdelPsi(:,:,i) * delPsi.';
+end
+```
+
+## Key Functions Reference - MATLAB
+
+### `sf_nfSolver(lambda, excitPhasor, Rmag, NdotRV)`
+Computes scalar near field and its normal derivative on a surface using superposition of point sources.
+
+**Inputs:**
+- `lambda` - Wavelength [m]
+- `excitPhasor` - Source excitation phasors
+- `Rmag` - Distance matrix from sources to surface points
+- `NdotRV` - Dot products for derivative computation
+
+**Outputs:**
+- `psi` - Near field values
+- `delPsi` - Normal field derivatives
+
+### `sf_nf2ffSolver(lambda, theta, phi, surfPos, N, dS, psi, delPsi)`
+Transforms scalar near field to far-field using Huygens' principle.
+
+**Inputs:**
+- `theta, phi` - Far-field observation angles
+- `surfPos` - Surface sampling point coordinates (3×N)
+- `N` - Outward normal vectors (3×N)
+- `dS` - Surface patch areas (1×N)
+
+**Outputs:**
+- `fPsi` - Far-field radiation pattern (len(phi) × len(theta))
+
+### `buildArray(lambda, nx, dx, ny, dy)`
+Creates rectangular antenna array positions.
+
+**Inputs:**
+- `lambda` - Wavelength (for scaling)
+- `nx, ny` - Number of elements in x and y
+- `dx, dy` - Element spacings
+
+**Outputs:**
+- Array position matrix (3×(nx×ny))
+
+### `buildSphere(radius, resolution, thetaRes, phiRes, type)`
+Constructs spherical sampling surface.
+
+**Inputs:**
+- `radius` - Sphere radius
+- `resolution` - Mesh resolution parameter
+- `thetaRes, phiRes` - Angular resolutions
+
+**Outputs:**
+- `spherePos` - Surface point coordinates
+- `dS` - Patch areas
+- `thetaNF, phiNF` - Sampling angles
+- `mSize` - Mesh dimensions
+
+## Testing - MATLAB
+
+Run test scripts from their respective directories:
+```matlab
+cd scalarField/sphere
+test_Fields_SVD
+```
+
+Test scripts validate the implementation against direct far-field solvers and measure error metrics (L1, L2, max error).
+
+---
+
+# Python Version
+
+## Installation & Dependencies - Python
+
+### Required Packages
+- `numpy >= 1.21.0` - Numerical computations
+- `scipy >= 1.7.0` - Scientific computing utilities  
+- `matplotlib >= 3.4.0` - Plotting and visualization
+
+### Installation
+
+```bash
+# Install from repository
+cd /Users/ntilau/GitHub/N2F
+pip install -r requirements.txt
+pip install -e .  # Install in development mode
+
+# Or install dependencies only
+pip install numpy scipy matplotlib
+```
+
+## Package Structure - Python
+
+```
+pyn2f/
+├── geometry/          - Array and surface geometry generation
+│   ├── build_array.py           - Build point source arrays
+│   ├── build_box.py             - Build bounding boxes
+│   ├── build_sphere.py          - Build bounding spheres
+│   ├── get_box_dim.py           - Calculate box dimensions
+│   ├── geometry_utils.py        - Get surface vectors and normals
+│   ├── get_tri_sph_mesh.py      - Generate triangulated sphere mesh
+│   └── spiraling_trajectory.py  - Generate spiral trajectories
+│
+├── transforms/        - Coordinate transformations
+│   └── coordinate_transforms.py - Cartesian/spherical conversions, rotations
+│
+├── scalar/           - Scalar field (scalar wave) solvers
+│   ├── sf_solvers.py            - NF and N2F solvers
+│   └── sf_excitations.py        - Source excitations and operators
+│
+├── vector/           - Vector field (electromagnetic) solvers
+│   ├── vf_solvers.py            - Vector field NF and N2F solvers
+│   ├── vf_excitations.py        - Electric and magnetic dipoles
+│   └── vf_operators.py          - Field transformation operators
+│
+├── utils/            - Utility functions
+│   ├── deg2rad.py, rad2deg.py   - Angular unit conversions
+│   ├── vector2matrix.py         - Vector/matrix reshape operations
+│   ├── spherical_sampling.py    - Spherical sampling parameters
+│   ├── angular_functions.py     - Angular sampling functions
+│   ├── error_metrics.py         - L1, L2, and max error calculations
+│   └── electrical_params.py     - EM material parameters
+│
+├── plotting/         - Visualization functions
+│   ├── geometry_plots.py        - 3D geometry visualization
+│   ├── field_plots.py           - Near-field and far-field plots
+│   ├── error_plots.py           - Error analysis plots
+│   └── plot_properties.py       - Color maps and figure properties
+│
+└── __init__.py       - Main package exports
+```
+
+## Key Function Imports - Python
+
+```python
+from pyn2f import (
+    # Geometry
+    build_array, build_box, build_sphere,
+    get_box_dim, get_sph_radius, get_box_vectors, get_sph_vectors,
+    
+    # Transforms
+    cartesian2spherical, spherical2cartesian, cross_operator, get_rotation_matrix,
+    
+    # Scalar field solvers
+    sf_nf_solver, sf_nf2ff_solver, sf_direct_ff_solver, sf_compute_gain,
+    
+    # Vector field solvers
+    vf_nf_solver, vf_nf2ff_solver, vf_direct_ff_solver,
+    
+    # Utilities
+    deg2rad, rad2deg, vector2matrix, get_l1_error, get_l2_error,
+    
+    # Plotting
+    plot_sph_geom, sf_plot_ff_cut_planes, vf_plot_ff_3d
+)
+```
+
+## Usage Examples - Python
+
+### Scalar Field N2F Transformation
+
+```python
+import numpy as np
+from pyn2f import (
+    build_array, build_box, get_box_dim, get_box_vectors,
+    sf_excitations, sf_solvers, deg2rad, plot_sph_geom
+)
+
+# Build array and box geometry
+lambda_wl = 1.0  # wavelength
+array_pos = build_array(lambda_wl, 3, 0.5, 5, 0.5)
+x_min, x_max, y_min, y_max, z_min, z_max, x_pts, y_pts, z_pts = \
+    get_box_dim(lambda_wl, array_pos, 0.5, 0.1, 0.5)
+
+box_pos, box_n, ds, m_size = build_box(
+    [1, 1, 1, 1, 1, 1], x_min, x_max, y_min, y_max, z_min, z_max,
+    x_pts, y_pts, z_pts, 1, 0, 0)
+
+r_mag, ndot_rv = get_box_vectors(array_pos, box_pos, box_n)
+
+# Compute near field
+excit_phasor = sf_excitations.sf_excitations(lambda_wl, array_pos, steering_t=0, steering_p=0)
+psi, del_psi = sf_solvers.sf_nf_solver(lambda_wl, excit_phasor, r_mag, ndot_rv)
+
+# Compute far field
+theta_ff = deg2rad(np.arange(-90, 91, 1))
+phi_ff = deg2rad([0, 90])
+f_psi = sf_solvers.sf_nf2ff_solver(lambda_wl, theta_ff, phi_ff, box_pos, box_n, ds, psi, del_psi)
+
+# Compute gain
+gain = sf_solvers.sf_compute_gain(f_psi)
+```
+
+## Test Examples - Python
+
+Example scripts are provided in `tests/` directory:
+
+- `tests/scalar_field/show_BoxN2F.py` - Near-field to far-field from box
+- `tests/scalar_field/show_SphereN2F.py` - Near-field to far-field from sphere
+
+Run with:
+```bash
+python tests/scalar_field/show_BoxN2F.py
+python tests/scalar_field/show_SphereN2F.py
+```
+
+## Conversion Notes - Python to MATLAB
+
+### Naming Conventions
+- MATLAB: `camelCase` → Python: `snake_case`
+- MATLAB: `getBoxVectors()` → Python: `get_box_vectors()`
+- MATLAB: `sf_plotArrayGeom()` → Python: `sf_plot_array_geom()`
+
+### Matrix Operations
+- MATLAB uses 1-indexing and column-major storage
+- Python uses 0-indexing and row-major storage (NumPy defaults)
+- Transpositions are handled transparently where needed
+
+### Return Values
+- MATLAB: Multiple return values from functions preserved as tuples
+- Python: Multiple returns unpacked directly: `a, b, c = function()`
+
+### Plotting
+- MATLAB: `figure()`, `plot()` → Python: matplotlib functions
+- MATLAB: `hold on` → Python: `ax.plot(..., ax=ax)` on same axes
+
+## Python Library Status
+
+✓ **Core Geometry Functions** (7 modules)
+✓ **Coordinate Transformations** (1 module)
+✓ **Scalar Field Solvers** (2 modules)
+✓ **Vector Field Solvers** (3 modules)
+✓ **Utility Functions** (7 modules)
+✓ **Plotting Functions** (15 functions)
+
+### Optional Future Work
+
+**Print Functions** (2 files):
+- `printEPS()` - Print to EPS format
+- `printPDF()` - Print to PDF format
+- Status: Can be added using matplotlib's savefig()
+
+**Additional Test Scripts**:
+- More comprehensive test suites for all modules
+- Vector field test examples
+- Parametric studies and convergence tests
+
+## Performance Considerations - Python
+
+1. **NumPy Vectorization**: All operations use NumPy vectorized operations for speed
+2. **Memory Efficiency**: Large matrices are handled efficiently with NumPy arrays
+3. **Computation Time**: Python performance is comparable to MATLAB for numerical operations
+
+## Notes for Users - Python
+
+1. **Wavelength Units**: All functions assume consistent units (typically meters)
+2. **Far-field Angles**: Angles are in radians throughout the library
+3. **Helper Functions**: Use `deg2rad()` and `rad2deg()` for angle conversions
+4. **Matrix Ordering**: Surface ordering and indexing may differ from MATLAB - verify with small tests
+
+## Support & Documentation - Python
+
+Each function includes comprehensive docstrings with:
+- Function description
+- Parameters section with types and units
+- Returns section describing output
+- Notes section for special considerations
+
+Example:
+```python
+help(pyn2f.scalar.sf_nf_solver)  # View detailed documentation
+```
+
+---
+
+## Author & License
+
+Original MATLAB code by Laurent Ntibarikure  
+Python conversion: 2024-2025
+
+This library implements near-field to far-field transformations using model order reduction for efficient electromagnetic field calculations.

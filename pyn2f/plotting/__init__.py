@@ -13,7 +13,6 @@ from .field_plots import (
     sf_plot_sph_nf,
     sf_plot_sph_nf_solid,
     sf_plot_ff_cut_planes,
-    vf_plot_array_geom,
     vf_plot_array_geom_3d,
     vf_plot_ff_3d,
     vf_plot_ff_3d_radiation,

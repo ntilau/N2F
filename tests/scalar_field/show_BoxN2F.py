@@ -10,7 +10,8 @@ sys.path.insert(0, '../../')
 from pyn2f.geometry import build_array, get_box_dim, build_box, geometry_utils
 from pyn2f.transforms import coordinate_transforms
 from pyn2f.utils import deg2rad
-from pyn2f.scalar import sf_excitations, sf_solvers
+from pyn2f.scalar.sf_excitations import sf_excitations
+from pyn2f.scalar import sf_solvers
 from pyn2f.plotting import sf_plot_ff_cut_planes
 
 # Parameters
@@ -44,7 +45,7 @@ steering_t = 0  # [degrees]
 steering_p = 0  # [degrees]
 
 print("Computing near field...")
-excit_phasor = sf_excitations.sf_excitations(lambda_, array_pos, steering_t, steering_p)
+excit_phasor = sf_excitations(lambda_, array_pos, steering_t, steering_p)
 psi, del_psi = sf_solvers.sf_nf_solver(lambda_, excit_phasor, r_mag, ndot_rv)
 
 # Near field to far field transformation

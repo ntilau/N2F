@@ -42,7 +42,7 @@ from .utils import (
 if plotting is not None:
     from .plotting import (
         plot_sph_geom, sf_plot_array_geom, sf_plot_box_nf, sf_plot_sph_nf,
-        sf_plot_sph_nf_solid, sf_plot_ff_cut_planes, vf_plot_array_geom,
+        sf_plot_sph_nf_solid, sf_plot_ff_cut_planes,
         vf_plot_array_geom_3d, vf_plot_ff_3d, vf_plot_ff_3d_radiation,
         vf_plot_ff_cut_planes, vf_plot_ff_polar_cut_planes,
         vf_plot_surface_power_density, plot_svd_error,
@@ -56,7 +56,6 @@ else:
     sf_plot_sph_nf = None
     sf_plot_sph_nf_solid = None
     sf_plot_ff_cut_planes = None
-    vf_plot_array_geom = None
     vf_plot_array_geom_3d = None
     vf_plot_ff_3d = None
     vf_plot_ff_3d_radiation = None

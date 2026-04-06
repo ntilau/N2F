@@ -16,4 +16,5 @@ def deg2rad(deg):
     rad : float or ndarray
         Angle in radians
     """
+    deg = np.asarray(deg)
     return (np.pi / 180) * deg
