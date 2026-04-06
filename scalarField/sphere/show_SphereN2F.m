@@ -1,9 +1,19 @@
-%%% test of the near field to far field transformation from a bounding 
-%%% sphere 
+%%% Demonstration: Near-field to far-field (N2F) transformation on spherical surface
+% OBJECTIVE: Show basic N2F workflow, validate accuracy vs direct solver
+%
+% WORKFLOW:
+%   1. Create antenna array and spherical bounding surface
+%   2. Compute near-field via source superposition (scalar field)
+%   3. Transform to far-field using N2F operator (Huygens' principle)
+%   4. Validate vs direct source summation (ground truth)
+%   5. Plot patterns and report error metrics
+%
+% EXPECTED: Near-perfect match between methods (>>-100dB error)
+%
 clear; clc; close all;
 addpath('../../matlabLib');
 
-%%--- params for planar array of point sources on XY plane
+%%--- Configuration: antenna array parameters
 lambda = 1;
 nbrElems_x = 5; % number of point sources on x direction
 WLspacing_x = .5; % spacing between pointsources in wavelengths (wl.) x dir
@@ -37,7 +47,7 @@ excitPhasor = sf_excitations(lambda, arrayPos, steering_t, steering_p);
 % sf_plotSphNFSolid(matrixSize, thetaNF, phiNF, psi.', '');
 
 %%--- nf2ff
-dthetaFF = .5; % ff pattern resolution [°]
+dthetaFF = .5; % ff pattern resolution [ï¿½]
 thetaFF = deg2rad(-90:dthetaFF:90);
 phiFF = deg2rad([0 90]);
 fPsi = sf_nf2ffSolver(lambda, thetaFF, phiFF, spherePos, n, dS, ...
@@ -49,8 +59,8 @@ fPsiRef = sf_directffSolver(lambda, thetaFF, phiFF, ...
 gain = sf_computeGain(fPsi);
 refGain = sf_computeGain(fPsiRef);
 planes = [1 2];
-infos(1).title = {' Pattern in \phi = 0°'};
-infos(2).title = {' Pattern in \phi = 90°'};
+infos(1).title = {' Pattern in \phi = 0ï¿½'};
+infos(2).title = {' Pattern in \phi = 90ï¿½'};
 infos(1).legend1 = 'N2F';
 infos(1).legend2 = 'Direct';
 infos(2).legend1 = 'N2F';

@@ -1,23 +1,43 @@
-% Builds a box that encompass the array over which will be computed the
-% near fields on the selected faces and returns the near field sampling
-% points position and the patches areas
+% Constructs a rectangular bounding box surface for near-field sampling
 %
-% [boxPos, boxN, dS, mSize] =...
-%   buildBox(faces, xMin, xMax, yMin, yMax, zMin, zMax,...
+% Creates rectangular faces with optional selective inclusion for N2F transformations.
+% Enables flexible bounding surface choices (full box, partial enclosure, single plane)
+%
+% FACE INDEXING: faces = [faceTop, faceBottom, faceUp, faceDown, faceLeft, faceRight]
+%   All indices use 1 = include, 0 = exclude
+%   faceTop = XY plane at z=zMax (outward normal +z)
+%   faceBottom = XY plane at z=zMin (outward normal -z)
+%   faceUp = XZ plane at y=yMax (+y normal)
+%   faceDown = XZ plane at y=yMin (-y normal)
+%   faceLeft = YZ plane at x=xMin (-x normal)
+%   faceRight = YZ plane at x=xMax (+x normal)
+%
+%   Example: [1 1 1 1 1 1] = all six faces (closed box)
+%   Example: [0 0 1 1 1 1] = four sides only (open top/bottom)
+%   Example: [1 0 0 0 0 0] = single face (for MoM problems)
+%
+% [boxPos, boxN, dS, mSize] = buildBox(faces, xMin, xMax, yMin, yMax, zMin, zMax, ...
 %   xPts, yPts, zPts, scale, plotFlag, forPlot)
-% 
-% IN: faces = boolean vector of the faces to select [XY face up (top), 
-%             XY face down (bottom), XZ face up, XZ face down,
-%             YZ face up, YZ face down]
-%     xMin, xMax, yMin, yMax, zMin, zMax = box dimensions
-%     xPts, yPts, zPts = nbr of sampling points along x, y, z directions
-%     scale = reduction of the box dimensions in [m] that scales
-%             proportionally the box within the initial dimensions
-%     plotFlag = plots the sampling grid if asserted
-%     forPlot = allows proper box dimensions plot if asserted letting the
-%               grid be related to the surface patches
 %
-% OUT: boxPos = positions of the sampling points or, grid intersections of
+% IN: faces = [6x1] binary flag vector selecting faces as described above
+%     xMin, xMax, yMin, yMax, zMin, zMax = box boundaries [m]
+%     xPts, yPts, zPts = number of sampling points along each edge direction
+%     scale = box contraction factor [m]; final dimensions = original - scale
+%             Used for positioning inside room or near geometry
+%     plotFlag = 1 to visualize the sampling grid
+%     forPlot = 1 to ensure patches align for proper 3D visualization
+%
+% OUT: boxPos = Cartesian coordinates of sampling points (3 x nTotalPts)
+%      boxN = outward normal unit vectors to each point (3 x nTotalPts)
+%      dS = area per patch element [m^2] (1 x nTotalPts)
+%           Uniform spacing: dS(i) = (dX * dY) or (dX * dZ) or (dY * dZ)
+%      mSize = mesh metadata: dimensions, statistics, face tallies
+%
+% GEOMETRY: Each face is a regular rectangular mesh
+%   XY face: dX = (xMax-xMin)/(xPts-1), dY = (yMax-yMin)/(yPts-1)
+%   Outward normals always point AWAY from box interior
+%
+% Laurent Ntibarikure
 %               the sampling patches if forPlot is asserted
 %      boxN = outwardly directed normal unit vectors to the faces
 %      dS = surface patches areas

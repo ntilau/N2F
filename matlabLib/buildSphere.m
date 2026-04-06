@@ -1,23 +1,44 @@
-% Builds the near field sampling points location and the area of the
-% patches
+% Constructs a spherical bounding surface with flexible angular sampling strategies
+%
+% Generates regularly or adaptively sampled discrete sphere for N2F transformations.
+% Key for efficient far-field computation via spherical Huygens' principle.
+%
+% SAMPLING MODES (flag parameter):
+%   flag = 0 : Standard dTheta-dPhi uniform grid (most common)
+%              Regular Cartesian grid mapped to sphere
+%   flag = 1 : Enhanced resolution using wavelength-based sampling (sphSmplRes)
+%              Automatically adjusts density based on electrical size
+%   flag = 2 : Special dTheta-dPhi grid optimized for 3D visualization
+%              Avoids patches overlapping in plot (esthetic improvement)
+%              WARNING: May introduce small N2F errors; use flag=0 for accurate computation
+%   flag = 3 : Custom adaptive sampling (user-defined via rotAngle, rotAxis)
+%              Applies rotation for directional focus or regional refinement
 %
 % [spherePos, dS, theta, phi, matrixSize] = ...
-%   buildSphere(radius, sphSmplRes, dTheta, dPhi, flag, ...
-%   rotAngle, rotAxis);
+%   buildSphere(radius, sphSmplRes, dTheta, dPhi, flag, rotAngle, rotAxis)
 %
-% IN: radius = radius of the sphere in [m]
-%     sphSmplRes = sampling resolution in wavelengths (depend on flag)
-%     dTheta = theta sampling resolution in degrees (depend on flag)
-%     dPhi = phi sampling resolution in degrees (depend on flag)
-%     flag = 0: dTheta-dPhi  1: sphSmplRes 2: dTheta-dPhi for nf plots
-%            (chosen in a range that allows 3D plots without missing 
-%            patches) n.b. 2: induces errors in the n2f computation
-%     rotAngle = rotation angle in degrees of the sphere points for nf
-%                rotation
-%     rotAxis = rotation axis defined by the vector with components [x;y;z]
+% IN: radius = sphere radius [m]
+%     sphSmplRes = wavelength-based sampling resolution [wavelengths]
+%                  (used if flag=1; ignored otherwise)
+%     dTheta = polar angle discretization [degrees] (typical: 1-5 degrees)
+%     dPhi = azimuthal angle discretization [degrees] (typical: 1-5 degrees)
+%     flag = sampling mode selector (0,1,2,3)
+%     rotAngle = rotation angle [degrees] for flag=3 mode (e.g., 45 for tilt)
+%     rotAxis = unit vector [x;y;z] defining rotation axis (e.g., [1;1;0] for diagonal)
 %
-% OUT: spherePos = position [x;y;z] of the sphere sampling points
-%      dS = area of the patch in which the fields are sampled
+% OUT: spherePos = Cartesian coordinates on sphere surface (3 x nNodes)
+%                  All points satisfy ||spherePos|| = radius identically
+%      dS = area per sampling patch [m^2] (1 x nNodes)
+%           For uniform sphere: approx (4*pi*radius^2) / nNodes
+%      theta = polar angles [radians] of sampling nodes (0 to pi)
+%      phi = azimuthal angles [radians] of sampling nodes (0 to 2*pi)
+%      matrixSize = mesh metadata: [nTheta x nPhi], total points, etc.
+%
+% EFFICIENCY: Sphere avoids general poly geometry distance computations.
+%   All properties (point locations, normals, areas) have closed-form expressions,
+%   enabling O(1) per-point computation vs. O(n) for arbitrary surfaces.
+%
+% Laurent Ntibarikure
 %      theta, phi = direction of the sphere sampling point
 %      matrixSize = for the collection of the sampling points in terms of
 %                   the sampling direction [theta, phi]

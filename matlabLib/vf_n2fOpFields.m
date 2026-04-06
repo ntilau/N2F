@@ -1,17 +1,33 @@
-% Computes the nf2ff operators for arbitrarily shaped surface
+% Computes the near-to-far field (N2F) transformation operators for vector fields
+% using Kottler's equations in spherical coordinates
+%
+% This function constructs full-rank operator matrices that transform tangential
+% electric and magnetic fields (or equivalent electric currents) on a bounding
+% surface to far-field theta and phi polarized electric field components.
+%
+% ALGORITHM: For each far-field angle (theta_FF, phi_FF):
+%   1. Compute unit vectors in spherical direction: R_ff and polarization vectors t, p
+%   2. Calculate Green's function exp(ik*R)/(4*pi*R) for each surface element
+%   3. Apply Kottler's equations: cross products of currents/fields with R_ff
+%   4. Weight by surface normals and areas to enforce Maxwell's equations
+%   5. Organize results in operator matrices for efficient application
 %
 % [Opt,Opp] =  vf_n2fOpFields(k0, z0, surfPos, surfN, dS, thetaFF, phiFF)
 %
-% IN: k0, z0 = free-space wavenumber and impedance
-%     surfPos = surface sampling points locations
-%     surfN = outwardly directed normal unit vectors to the surface
-%     dS = surface patches areas
-%     thetaFF, phiFF = look angles for pattern shape
+% IN: k0, z0 = free-space wavenumber [rad/m] and characteristic impedance [Ohm]
+%     surfPos = surface sampling points Cartesian coordinates [m] (3 x nPts)
+%     surfN = outwardly directed normal unit vectors to surface (3 x nPts)
+%     dS = surface patch areas [m²] (1 x nPts)
+%     thetaFF = polar angles for far-field observation [rad] (nTheta x nPhi)
+%     phiFF = azimuthal angles for far-field observation [rad] (nTheta x nPhi)
 %
-% OUT: Opt = near fields to far electric field operator for theta polarized
-%            electric field
-%      Opp = near fields to far electric field operator for phi polarized
-%            electric field
+% OUT: Opt = N2F operator for theta-polarized E-field (nTheta x 6*nPts x nPhi)
+%            Maps [H_x H_y H_z E_x E_y E_z] currents to theta E-field
+%      Opp = N2F operator for phi-polarized E-field   (nTheta x 6*nPts x nPhi)
+%            Maps [H_x H_y H_z E_x E_y E_z] currents to phi E-field
+%
+% NOTE: Operators are not truncated; use vf_n2fOpFieldsFFT for DFT decomposition
+%       Factor of 6*nPts comes from: H-field (3) + E-field (3) components
 %
 % Laurent Ntibarikure
 function [Opt,Opp] =  vf_n2fOpFields(k0, z0, surfPos, surfN, dS, ...
@@ -30,15 +46,24 @@ for j=1:size(thetaFF,2)
   RffVy=sin(thetaFF(:,j)).*sin(phiFF(:,j));
   RffVz=cos(thetaFF(:,j));
 
+  % Define spherical polarization unit vectors:
+  % theta-polarization: t = d(R_ff)/d(theta) = [cos(theta)cos(phi), cos(theta)sin(phi), -sin(theta)]
+  % phi-polarization:   p = (1/sin(theta))*d(R_ff)/d(phi) = [-sin(phi), cos(phi), 0]
   t_x=cos(thetaFF(:,j)).*cos(phiFF(:,j));
   t_y=cos(thetaFF(:,j)).*sin(phiFF(:,j));
   t_z=-sin(thetaFF(:,j));
   p_x=-sin(phiFF(:,j));
-  p_y=cos(phiFF(:,j));
+  p_y=cos(phiFF(:,j));  % p_z = 0
 
+  % Green's function: G = exp(ik*R)/(4*pi*R) [1/distance]
+  % Approximation: R ≈ R_ff·surfPos (far-field approximation, valid for R >> surface size)
+  % Distance phase: k*R = k*(R_ff·surfPos) = k*(x*sin(theta)cos(phi) + y*sin(theta)sin(phi) + z*cos(theta))
   green=-1i*k0/(4*pi).*exp(1i*k0*(RffVx*surfPos(1,:)+...
     RffVy*surfPos(2,:) +RffVz*surfPos(3,:)));
 
+  % OptE: Theta-polarized component of electric field operator from Kottler's eq.
+  % Applies: cross product with normal (curl operation) and dot product with t-polarization
+  % Structure: [component_1; component_2; component_3] for each theta-angle
   OptE = [ green.*(-(t_x*surfN(3,:)) .* ((RffVz)*dS) + ...
     (t_x*surfN(2,:)) .* ((-RffVy)*dS) - ...
     (t_y*surfN(3,:)) .* zeros(size(thetaFF,1),size(surfPos,2)) + ...
@@ -77,6 +102,8 @@ for j=1:size(thetaFF,2)
     (t_z*surfN(2,:)).*z0 .* ((-RffVx.*RffVz)*dS) - ...
     (t_z*surfN(1,:)).*z0 .* ((-RffVy.*RffVz)*dS)) ];
 
+  % Assemble operator: [H-field contributions | E-field contributions]
+  % Reorganize from stacked vector format to matrix form for efficient E-field computation
   Opt(:,:,j) = [ vector2matrix(dim, OptH(:)), ...
     vector2matrix(dim, OptE(:)) ];
 

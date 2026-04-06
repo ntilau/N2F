@@ -1,20 +1,38 @@
-% Computes the nf2ff operators for arbitrarily shaped surface
+% Computes N2F transformation operators with DFT-based coefficient truncation
+% for vector fields using Kottler's equations in spherical coordinates
 %
-% [Opt, Opp, nbrCoeffs] =  vf_n2fOpFields(k0, z0, surfPos, surfN, dS, ...
-%   thetaFF, phiFF, nbrCoeffs)
+% This function constructs TRUNCATED operator matrices by decomposing the full
+% angular dependency via FFT and retaining only low-frequency Fourier coefficients.
+% This dramatically reduces computational cost for pattern computations.
 %
-% IN: k0, z0 = free-space wavenumber and impedance
-%     surfPos = surface sampling points locations
-%     surfN = outwardly directed normal unit vectors to the surface
-%     dS = surface patches areas
-%     thetaFF, phiFF = look angles for pattern shape
-%     nbrCoeffs = coefficients to retain in the DFT-truncation
+% ALGORITHM:
+%   1. Compute full N2F operators as in vf_n2fOpFields (all theta angles)
+%   2. Apply 1D FFT along theta direction for each phi angle
+%   3. Extract central low-frequency coefficients (indicating smooth patterns)
+%   4. Higher harmonics (large-|k| DFT terms) are discarded as low-contribution
+%   5. Resulting compressed operators: (2*nbrCoeffs+1) x 6*nPts x nPhi
 %
-% OUT: Opt = near fields to far electric field operator Fourier coeffs 
-%            for theta polarized electric field
-%      Opp = near fields to far electric field operator Fourier coeffs 
-%            for phi polarized electric field
-%      nbrCoeffs = effective number of coefficients retained (odd number)
+% COEFFICIENT INDEXING:
+%   - Full FFT: [0 1 2 ... N/2-1 -N/2+1 ... -2 -1]
+%   - Retained: [0 1 2 ... nbrCoeffs | -nbrCoeffs ... -2 -1]  (DC + nbrCoeffs positive + nbrCoeffs negative)
+%   - This exploits Hermitian symmetry for real-valued fields
+%
+% [Opt, Opp, nbrCoeffs] =  vf_n2fOpFieldsFFT(k0, z0, surfPos, surfN, dS, thetaFF, phiFF, nbrCoeffs)
+%
+% IN: k0, z0 = free-space wavenumber [rad/m] and characteristic impedance [Ohm]
+%     surfPos = surface sampling points coordinates [m] (3 x nPts)
+%     surfN = outwardly directed surface normals (3 x nPts)
+%     dS = surface patch areas [m²] (1 x nPts)
+%     thetaFF = polar angles [rad] (nTheta x nPhi), nTheta must be power of 2 for FFT
+%     phiFF = azimuthal angles [rad] (nTheta x nPhi)
+%     nbrCoeffs = number of positive/negative freq. coefficients to retain (input value)
+%
+% OUT: Opt = N2F theta-polarized operator with DFT truncation (2*nbrCoeffs+1 x 6*nPts x nPhi)
+%      Opp = N2F phi-polarized operator with DFT truncation (2*nbrCoeffs+1 x 6*nPts x nPhi)
+%      nbrCoeffs = effective number of coefficients stored (returned for verification)
+%
+% NOTE: Input nbrCoeffs is halved internally (floor(nbrCoeffs/2)) for Nyquist consideration
+%       Typical usage: nbrCoeffs input = 32 results in 65 output coefficients per operator
 %
 % Laurent Ntibarikure
 function [Opt, Opp, nbrCoeffs] =  vf_n2fOpFieldsFFT(k0, z0, surfPos, ...
@@ -24,8 +42,9 @@ fprintf('#> Computing the n2f fields operators ... ')
 tic();
 
 sizet=size(thetaFF,1);
-nbrCoeffs = floor(nbrCoeffs/2);
-coeffsInd=[1:nbrCoeffs+1,sizet-nbrCoeffs+1:sizet];
+nbrCoeffs = floor(nbrCoeffs/2);  % Reduce for Nyquist criterion
+% DFT coefficient indexing: retain DC (index 1) + positive freqs (1:nbrCoeffs) + negative freqs from end
+coeffsInd=[1:nbrCoeffs+1,sizet-nbrCoeffs+1:sizet];  % [DC, pos freqs | neg freqs]
 
 Opt = zeros(2*nbrCoeffs+1,size(surfPos,2)*6,size(thetaFF,2));
 Opp = Opt;
