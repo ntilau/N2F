@@ -13,6 +13,3 @@ __all__ = [
     'cross_operator',
     'get_rotation_matrix',
 ]
-    'cross_operator',
-    'get_rotation_matrix',
-]

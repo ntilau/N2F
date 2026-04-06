@@ -20,18 +20,3 @@ __all__ = [
     'get_tri_sph_mesh',
     'get_spiraling_helicoidal_trajectory',
 ]
-from .get_tri_sph_mesh import get_tri_sph_mesh
-from .get_spiraling_helicoidal_trajectory import get_spiraling_helicoidal_trajectory
-
-__all__ = [
-    'build_array',
-    'build_box',
-    'build_sphere',
-    'build_tri_sphere',
-    'get_box_dim',
-    'get_box_vectors',
-    'get_sph_vectors',
-    'get_sph_radius',
-    'get_tri_sph_mesh',
-    'get_spiraling_helicoidal_trajectory',
-]

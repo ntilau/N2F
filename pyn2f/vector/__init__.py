@@ -13,13 +13,3 @@ __all__ = [
     'vf_excitations',
     'vf_compute_gain',
 ]
-
-__all__ = [
-    'vf_nf_solver',
-    'vf_nf2ff_solver',
-    'vf_directff_solver',
-    'vf_n2f_op_fields',
-    'vf_n2f_op_fields_fft',
-    'vf_excitations',
-    'vf_compute_gain',
-]

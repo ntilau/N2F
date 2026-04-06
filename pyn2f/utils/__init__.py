@@ -27,14 +27,3 @@ __all__ = [
     'get_free_space_electrical_params',
     'get_reduced_output_system_matrices',
 ]
-    'get_spanning_angles',
-    'get_sph_smpl_angles',
-    'get_sph_smpl_angles_for_plots',
-    'get_sph_smpl_res',
-    'get_l1_error',
-    'get_l2_error',
-    'get_max_error',
-    'get_free_space_electrical_params',
-    'get_look_angle_poly',
-    'get_reduced_output_system_matrices',
-]
