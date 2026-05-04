@@ -245,7 +245,6 @@ Test scripts validate the implementation against direct far-field solvers and me
 
 ```bash
 # Install from repository
-cd /Users/ntilau/GitHub/N2F
 pip install -r requirements.txt
 pip install -e .  # Install in development mode
 
